@@ -2,104 +2,85 @@ package ru.expensesincomeaccountingapp.DAO;
 
 import java.util.List;
 
-import java.util.ArrayList;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import org.hibernate.Filter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
+import org.springframework.stereotype.Component;
+import ru.expensesincomeaccountingapp.DAO.interfaces.UserDAOInterface;
 import ru.expensesincomeaccountingapp.entity.UserEntity;
+import ru.expensesincomeaccountingapp.hibernate.factory.HibernateEntityManagerFactory;
 import ru.expensesincomeaccountingapp.hibernate.factory.HibernateSessionFactory;
 
-/*
- * TODO: 1) Rewrite with EntityManager,
- *       2) Implement correct handling Exception
- */
-public class UserDAO {
-	
-	public void updateUserState(UserEntity user) {
-			
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
-			session.merge(user);
-			transaction.commit();
-			
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
-		}				
+
+@Component
+public class UserDAO implements UserDAOInterface {
+	EntityManager entityManager = HibernateEntityManagerFactory.getCreatingEntitytManager();
+	@Override
+	public void updateUser(UserEntity user) {
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		entityManager.merge(user);
+		transaction.commit();
 	}	
-	
+	@Override
 	public void softDeleteUser(UserEntity user) {
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
-			session.remove(user);
-			
-			transaction.commit();
-		} catch(HibernateException exception) {
-			exception.getStackTrace();
-		}
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		entityManager.remove(user);
+		transaction.commit();
 	}
-	
-	public void saveNewUser(UserEntity user) {
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();	
-			
-			session.persist(user);		
-			transaction.commit();
-			
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
-		}
+	@Override
+	public void saveUser(UserEntity user) {
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		entityManager.persist(user);
+		transaction.commit();
 	}
-	
-	public List<UserEntity> readUserRecords() {
-		
-		List<UserEntity> finalUserList = new ArrayList<>();
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();		
-			
-			Query<UserEntity> query = session.createQuery(
+	@Override
+	public List<UserEntity> readUser() {
+
+		EntityTransaction transaction = entityManager.getTransaction();
+		List<UserEntity> finalUserList;
+		transaction.begin();
+
+		TypedQuery<UserEntity> query = entityManager.createQuery(
 				"from UserEntity", UserEntity.class
-			);
+		);
 						
-			transaction.commit();
-			finalUserList = query.list();
-			
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
-		}
-		
+		transaction.commit();
+		finalUserList = query.getResultList();
+
 		return finalUserList;
 	}
-	
-	public UserEntity readUserRecordByUserAlias(String userAlias) {
-		
+	@Override
+	public UserEntity readUser(String userAlias) {
+		EntityTransaction transaction = entityManager.getTransaction();
 		UserEntity finalUser = null;
+		transaction.begin();
 		
 		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();	
 			
 			Filter filter = session.enableFilter("filterUsersByAlias");
 			filter.setParameter("userAlias", userAlias);
-			
-			Query<UserEntity> query = session.createQuery(
-				"from UserEntity", UserEntity.class
-			);
-			
-			transaction.commit();
-			
-			for(UserEntity searchUser : query.list()) {
-				finalUser = searchUser;
-			}
-			
+
 		}catch(HibernateException exception) {
 			exception.getStackTrace();
 		}
-		
+
+		TypedQuery<UserEntity> query = entityManager.createQuery(
+				"from UserEntity", UserEntity.class
+		);
+
+		transaction.commit();
+
+		for(UserEntity searchUser : query.getResultList()) {
+			finalUser = searchUser;
+		}
+
 		if(finalUser != null) {
 			return finalUser;
 		}

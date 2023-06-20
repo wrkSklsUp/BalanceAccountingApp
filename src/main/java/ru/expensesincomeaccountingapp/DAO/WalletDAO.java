@@ -2,90 +2,81 @@ package ru.expensesincomeaccountingapp.DAO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import org.hibernate.Filter;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
+import org.springframework.stereotype.Component;
+import ru.expensesincomeaccountingapp.DAO.interfaces.WalletDAOInterface;
 import ru.expensesincomeaccountingapp.entity.UserEntity;
 import ru.expensesincomeaccountingapp.entity.WalletEntity;
 import ru.expensesincomeaccountingapp.enums.Curencies;
+import ru.expensesincomeaccountingapp.hibernate.factory.HibernateEntityManagerFactory;
 import ru.expensesincomeaccountingapp.hibernate.factory.HibernateSessionFactory;
 
 
-/*
- * TODO: 1) Rewrite with EntityManager,
- *       2) Implement correct handling Exception
- */
-public class WalletDAO {
-	
-	public void closeWallet(WalletEntity wallet) {
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
-			session.remove(wallet);
-			transaction.commit();
-			
-		} catch(HibernateException ex) {
-			ex.getStackTrace();
-		}
+@Component
+public class WalletDAO implements WalletDAOInterface {
+
+	EntityManager entityManager = HibernateEntityManagerFactory.getCreatingEntitytManager();
+	@Override
+	public void close(WalletEntity wallet) {
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		entityManager.remove(wallet);
+		transaction.commit();
 	}
-	
-	public int updateWalletBalance(WalletEntity wallet) {
-		int NOT_RESULT = 0;	
-		int result = NOT_RESULT;
-		
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
-			Query<WalletEntity> query = session.createQuery(
-					
-			"update WalletEntity set balance = :balance, balanceStateOnDate = :balanceStateOnDate "
-			+ "where currency = :currency and walletOwner = :waletOwner", 
-			WalletEntity.class
-			
-			);
-			
-			query.setParameter("currency", wallet.getCurrency());
-			query.setParameter("balance", wallet.getBalance());
-			query.setParameter("walletOwner", wallet.getWalletOwner());
-			query.setParameter("balanceStateOnDate", new Date());
-			result = query.executeUpdate();
-			transaction.commit();
-			
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
-		}
-		
+	@Override
+	public int updateBalance(WalletEntity wallet) {
+
+		int result;
+
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		TypedQuery<WalletEntity> query = entityManager.createQuery(
+				"update WalletEntity set balance = :balance, balanceStateOnDate = :balanceStateOnDate "
+				+ "where currency = :currency and walletOwner = :walletOwner",
+				WalletEntity.class
+
+		);
+
+		query.setParameter("currency", wallet.getCurrency());
+		query.setParameter("balance", wallet.getBalance());
+		query.setParameter("walletOwner", wallet.getWalletOwner());
+		query.setParameter("balanceStateOnDate", new Date());
+		result = query.executeUpdate();
+		transaction.commit();
+
 		return result;
 	}
 	
-
-	public WalletEntity getWalletByCurrencyWalletOwner(UserEntity walletOwner, Curencies currency) {
+	@Override
+	public WalletEntity fetchWallet(UserEntity walletOwner, Curencies currency) {
 		
 		WalletEntity needWallet = null;
-		
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+
 		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
 			Filter filter = session.enableFilter("filterWalletsByOwnerCurrency");
 			filter.setParameter("walletCurrency", currency.toString());
 			filter.setParameter("walletOwner", walletOwner.getUserId());
-			
-			Query<WalletEntity> query = session.createQuery("from WalletEntity", WalletEntity.class);
-		
-			for(WalletEntity wallet : query.list()) {
-				needWallet = wallet;
-			}
-			
-			transaction.commit();
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
+		}catch(HibernateException ex){
+			ex.getStackTrace();
 		}
-		
+			
+		TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity", WalletEntity.class);
+
+		transaction.commit();
+
+		for(WalletEntity wallet : query.getResultList()) {
+			needWallet = wallet;
+		}
+
 		if(needWallet != null) {
 			return needWallet;
 		}
@@ -93,27 +84,25 @@ public class WalletDAO {
 		return new WalletEntity();
 	}
 	
+	@Override
+	public List<WalletEntity> fetchWallet(UserEntity walletOwner){
+		
+		List<WalletEntity> walletList;
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
 
-	public List<WalletEntity> getWalletsByWalletOwner(UserEntity walletOwner){
-		
-		List<WalletEntity> walletList = new ArrayList<>();
-		
 		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			Transaction transaction = session.beginTransaction();
-			
 			Filter filter = session.enableFilter("filterWalletsByOwner");
 			filter.setParameter("walletOwner", walletOwner.getUserId());
-			
-			Query<WalletEntity> query = session.createQuery("from WalletEntity", WalletEntity.class);
-			
-			transaction.commit();
-			
-			walletList = query.list();
-			
-			
 		}catch(HibernateException exception) {
 			exception.getStackTrace();
 		}
+
+		TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity", WalletEntity.class);
+
+		transaction.commit();
+
+		walletList = query.getResultList();
 		
 		return walletList;
 			
