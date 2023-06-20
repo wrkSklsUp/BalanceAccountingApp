@@ -7,9 +7,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface FinanceOperationDAOInterface {
-    public List<FinanceOperationEntity> fetchFinanceOperation();
-    public List<FinanceOperationEntity> fetchFinanceOperation(FinanceOperationTypes typeFinanceOperation);
-    public List<FinanceOperationEntity> fetchFinanceOperation(LocalDate dateFinancialTransactional);
-    public void saveFinanceOperation(FinanceOperationEntity financeOperation);
-    public void softDeleteFinanceOperationTable(FinanceOperationEntity financeOperationRow);
+    List<FinanceOperationEntity> fetchFinanceOperation();
+    List<FinanceOperationEntity> fetchFinanceOperation(FinanceOperationTypes typeFinanceOperation);
+    List<FinanceOperationEntity> fetchFinanceOperation(LocalDate dateFinancialTransactional);
+    void saveFinanceOperation(FinanceOperationEntity financeOperation);
+    void softDeleteFinanceOperationTable(FinanceOperationEntity financeOperationRow);
 }

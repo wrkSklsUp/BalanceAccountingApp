@@ -5,9 +5,9 @@ import ru.expensesincomeaccountingapp.entity.UserEntity;
 import java.util.List;
 
 public interface UserDAOInterface {
-    public void updateUser(UserEntity user);
-    public void softDeleteUser(UserEntity user);
-    public void saveUser(UserEntity user);
-    public List<UserEntity> readUser();
-    public UserEntity readUser(String userAlias);
+    void updateUser(UserEntity user);
+    void softDeleteUser(UserEntity user);
+    void saveUser(UserEntity user);
+    List<UserEntity> readUser();
+    UserEntity readUser(String userAlias);
 }

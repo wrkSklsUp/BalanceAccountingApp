@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface WalletDAOInterface {
 
-    public void close(WalletEntity wallet);
-    public int updateBalance(WalletEntity wallet);
-    public WalletEntity fetchWallet(UserEntity walletOwner, Curencies currency);
-    public List<WalletEntity> fetchWallet(UserEntity walletOwner);
+    void close(WalletEntity wallet);
+    int updateBalance(WalletEntity wallet);
+    WalletEntity fetchWallet(UserEntity walletOwner, Curencies currency);
+    List<WalletEntity> fetchWallet(UserEntity walletOwner);
 
 }
