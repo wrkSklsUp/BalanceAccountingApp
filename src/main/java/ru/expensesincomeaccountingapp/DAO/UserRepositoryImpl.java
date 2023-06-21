@@ -1,11 +1,13 @@
 package ru.expensesincomeaccountingapp.DAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.expensesincomeaccountingapp.DAO.interfaces.UserRepositoryInterface;
 import ru.expensesincomeaccountingapp.entity.UserEntity;
 
 import java.util.List;
 
+@Service
 public class UserRepositoryImpl implements UserRepositoryInterface {
     @Autowired
     UserDAO userDAO;
@@ -29,4 +31,5 @@ public class UserRepositoryImpl implements UserRepositoryInterface {
     public UserEntity getUserByUserAlias(String userAlias){
         return userDAO.readUser(userAlias);
     }
+
 }

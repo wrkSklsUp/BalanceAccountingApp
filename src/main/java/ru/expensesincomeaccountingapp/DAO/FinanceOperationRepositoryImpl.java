@@ -1,6 +1,7 @@
 package ru.expensesincomeaccountingapp.DAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.expensesincomeaccountingapp.DAO.interfaces.FinanceOperationRepositoryInterface;
 import ru.expensesincomeaccountingapp.entity.FinanceOperationEntity;
 import ru.expensesincomeaccountingapp.enums.FinanceOperationTypes;
@@ -8,6 +9,7 @@ import ru.expensesincomeaccountingapp.enums.FinanceOperationTypes;
 import java.time.LocalDate;
 import java.util.List;
 
+@Service
 public class FinanceOperationRepositoryImpl implements FinanceOperationRepositoryInterface {
     @Autowired
     FinanceOperationDAO financeOperationDAO;
