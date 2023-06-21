@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import org.hibernate.Filter;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import ru.expensesincomeaccountingapp.DAO.interfaces.FinanceOperationDAOInterfac
 import ru.expensesincomeaccountingapp.entity.FinanceOperationEntity;
 import ru.expensesincomeaccountingapp.enums.FinanceOperationTypes;
 import ru.expensesincomeaccountingapp.hibernate.factory.HibernateEntityManagerFactory;
-import ru.expensesincomeaccountingapp.hibernate.factory.HibernateSessionFactory;
 
 
 @Component
@@ -30,22 +28,20 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 		List<FinanceOperationEntity> foList;
 		transaction.begin();
 		
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
-			
+		try(Session session = entityManager.unwrap(Session.class)) {
+
 			Filter filter = session.enableFilter("financeDateOF");
 			filter.setParameter("dateFO", dateFinancialTransactional.toString());
-			
-		}catch(HibernateException ex) {
-			ex.getStackTrace();
+
+
+			TypedQuery<FinanceOperationEntity> query = entityManager.createQuery("from FinanceOperationEntity",
+					FinanceOperationEntity.class
+			);
+
+			transaction.commit();
+
+			foList = query.getResultList();
 		}
-
-		TypedQuery<FinanceOperationEntity> query = entityManager.createQuery("from FinanceOperationEntity",
-				FinanceOperationEntity.class
-		);
-
-		transaction.commit();
-
-		foList = query.getResultList();
 
 		return foList;
 	}
@@ -57,21 +53,19 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 		List<FinanceOperationEntity> finalList;
 		transaction.begin();
 		
-		try (Session session = HibernateSessionFactory.getSessionFactory().openSession()){
+		try (Session session = entityManager.unwrap(Session.class)) {
 			Filter filter = session.enableFilter("financeTypeOF");
 			filter.setParameter("typeFO", typeFinanceOperation.toString());
-		}catch(HibernateException ex) {
-			ex.getStackTrace();
+
+			TypedQuery<FinanceOperationEntity> query = entityManager.createQuery("from FinanceOperationEntity",
+					FinanceOperationEntity.class
+			);
+
+			transaction.commit();
+
+			finalList = query.getResultList();
 		}
 
-		TypedQuery<FinanceOperationEntity>query = entityManager.createQuery("from FinanceOperationEntity",
-				FinanceOperationEntity.class
-		);
-
-		transaction.commit();
-
-		finalList = query.getResultList();
-		
 		return finalList;
 	}
 	@Override

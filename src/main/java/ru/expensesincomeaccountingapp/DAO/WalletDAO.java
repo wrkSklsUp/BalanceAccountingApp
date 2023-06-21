@@ -7,7 +7,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
 import org.hibernate.Filter;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import ru.expensesincomeaccountingapp.entity.UserEntity;
 import ru.expensesincomeaccountingapp.entity.WalletEntity;
 import ru.expensesincomeaccountingapp.enums.Curencies;
 import ru.expensesincomeaccountingapp.hibernate.factory.HibernateEntityManagerFactory;
-import ru.expensesincomeaccountingapp.hibernate.factory.HibernateSessionFactory;
 
 
 @Component
@@ -61,27 +59,26 @@ public class WalletDAO implements WalletDAOInterface {
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
+		try(Session session = entityManager.unwrap(Session.class)) {
+
+
 			Filter filter = session.enableFilter("filterWalletsByOwnerCurrency");
 			filter.setParameter("walletCurrency", currency.toString());
 			filter.setParameter("walletOwner", walletOwner.getUserId());
-		}catch(HibernateException ex){
-			ex.getStackTrace();
-		}
-			
-		TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity", WalletEntity.class);
 
-		transaction.commit();
 
-		for(WalletEntity wallet : query.getResultList()) {
-			needWallet = wallet;
+			TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity",
+					WalletEntity.class
+			);
+
+			transaction.commit();
+
+			for (WalletEntity wallet : query.getResultList()) {
+				needWallet = wallet;
+			}
 		}
 
-		if(needWallet != null) {
-			return needWallet;
-		}
-		
-		return new WalletEntity();
+		return needWallet;
 	}
 	
 	@Override
@@ -91,19 +88,20 @@ public class WalletDAO implements WalletDAOInterface {
 		EntityTransaction transaction = entityManager.getTransaction();
 		transaction.begin();
 
-		try(Session session = HibernateSessionFactory.getSessionFactory().openSession()){
+		try(Session session = entityManager.unwrap(Session.class)) {
 			Filter filter = session.enableFilter("filterWalletsByOwner");
 			filter.setParameter("walletOwner", walletOwner.getUserId());
-		}catch(HibernateException exception) {
-			exception.getStackTrace();
+
+
+			TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity",
+					WalletEntity.class
+			);
+
+			transaction.commit();
+
+			walletList = query.getResultList();
 		}
 
-		TypedQuery<WalletEntity> query = entityManager.createQuery("from WalletEntity", WalletEntity.class);
-
-		transaction.commit();
-
-		walletList = query.getResultList();
-		
 		return walletList;
 			
 	}
