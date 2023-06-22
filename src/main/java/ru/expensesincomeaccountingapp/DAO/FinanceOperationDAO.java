@@ -4,29 +4,30 @@ import java.time.LocalDate;
 
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
+
 import org.hibernate.Filter;
 import org.hibernate.Session;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import ru.expensesincomeaccountingapp.DAO.interfaces.FinanceOperationDAOInterface;
 import ru.expensesincomeaccountingapp.entity.FinanceOperationEntity;
 import ru.expensesincomeaccountingapp.enums.FinanceOperationTypes;
-import ru.expensesincomeaccountingapp.hibernate.factory.HibernateEntityManagerFactory;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 
-@Component
+@Service
 public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 
-	EntityManager entityManager = HibernateEntityManagerFactory.getCreatingEntitytManager();
+	@PersistenceContext
+	EntityManager entityManager;
 	@Override
 	public List<FinanceOperationEntity> fetchFinanceOperation(LocalDate dateFinancialTransactional) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
 		List<FinanceOperationEntity> foList;
-		transaction.begin();
 		
 		try(Session session = entityManager.unwrap(Session.class)) {
 
@@ -38,8 +39,6 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 					FinanceOperationEntity.class
 			);
 
-			transaction.commit();
-
 			foList = query.getResultList();
 		}
 
@@ -49,9 +48,7 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 	public List<FinanceOperationEntity> fetchFinanceOperation(
 			FinanceOperationTypes typeFinanceOperation) {
 
-		EntityTransaction transaction = entityManager.getTransaction();
 		List<FinanceOperationEntity> finalList;
-		transaction.begin();
 		
 		try (Session session = entityManager.unwrap(Session.class)) {
 			Filter filter = session.enableFilter("financeTypeOF");
@@ -60,8 +57,6 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 			TypedQuery<FinanceOperationEntity> query = entityManager.createQuery("from FinanceOperationEntity",
 					FinanceOperationEntity.class
 			);
-
-			transaction.commit();
 
 			finalList = query.getResultList();
 		}
@@ -72,16 +67,12 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 	public List<FinanceOperationEntity> fetchFinanceOperation() {
 		
 		List<FinanceOperationEntity> finalList;
-		EntityTransaction transaction = entityManager.getTransaction();
-		transaction.begin();
 
-			
 		TypedQuery<FinanceOperationEntity> query = entityManager.createQuery(
 				"from FinanceOperationEntity",
 				FinanceOperationEntity.class
 		);
-			
-			transaction.commit();		
+
 			finalList = query.getResultList();
 
 		
@@ -89,20 +80,12 @@ public class FinanceOperationDAO implements FinanceOperationDAOInterface {
 	}
 	@Override
 	public void saveFinanceOperation(FinanceOperationEntity financeOperation) {
-		EntityTransaction transaction = entityManager.getTransaction();
-		transaction.begin();
 		entityManager.persist(financeOperation);
-		transaction.commit();
-		
 	}
 	
 	@Override
 	public void softDeleteFinanceOperationTable(FinanceOperationEntity financeOperationRow) {
-		EntityTransaction transaction = entityManager.getTransaction();
-		transaction.begin();
 		entityManager.remove(financeOperationRow);
-		transaction.commit();
-
 	}
 	
 }
