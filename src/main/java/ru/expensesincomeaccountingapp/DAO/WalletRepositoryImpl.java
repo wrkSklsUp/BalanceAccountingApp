@@ -2,6 +2,8 @@ package ru.expensesincomeaccountingapp.DAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import org.springframework.transaction.annotation.Transactional;
 import ru.expensesincomeaccountingapp.DAO.interfaces.WalletRepositoryInterface;
 import ru.expensesincomeaccountingapp.entity.UserEntity;
 import ru.expensesincomeaccountingapp.entity.WalletEntity;
@@ -15,10 +17,12 @@ public class WalletRepositoryImpl implements WalletRepositoryInterface {
     @Autowired
     WalletDAO walletDAO;
     @Override
+    @Transactional
     public void closeWallet(WalletEntity wallet){
         walletDAO.close(wallet);
     }
     @Override
+    @Transactional
     public int refreshWalletBalance(WalletEntity wallet){
         return walletDAO.updateBalance(wallet);
     }

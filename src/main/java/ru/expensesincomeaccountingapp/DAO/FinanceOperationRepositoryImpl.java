@@ -2,6 +2,8 @@ package ru.expensesincomeaccountingapp.DAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import org.springframework.transaction.annotation.Transactional;
 import ru.expensesincomeaccountingapp.DAO.interfaces.FinanceOperationRepositoryInterface;
 import ru.expensesincomeaccountingapp.entity.FinanceOperationEntity;
 import ru.expensesincomeaccountingapp.enums.FinanceOperationTypes;
@@ -26,10 +28,12 @@ public class FinanceOperationRepositoryImpl implements FinanceOperationRepositor
         return financeOperationDAO.fetchFinanceOperation(typeFinanceOperation);
     }
     @Override
+    @Transactional
     public void createRecordFinanceOperation(FinanceOperationEntity financeOperation){
         financeOperationDAO.saveFinanceOperation(financeOperation);
     }
     @Override
+    @Transactional
     public void deleteRecordFinanceOperation(FinanceOperationEntity financeOperation){
         financeOperationDAO.softDeleteFinanceOperationTable(financeOperation);
     }
