@@ -52,7 +52,7 @@ public class FinanceOperationEntity {
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "state_finance_operation_row")
-	private RowStates stateFinanceOperation;
+	private RowStates stateFinanceOperation = RowStates.ACCESSIBLE;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type_finance_operation")
@@ -72,7 +72,7 @@ public class FinanceOperationEntity {
 	private LocalTime timeFinanceOperation;
 	
 	@Column(name = "place_finance_operation")
-	private String plaseFinanceOperation;
+	private String placeFinanceOperation;
 	
 	public FinanceOperationEntity() {
 		
@@ -84,15 +84,14 @@ public class FinanceOperationEntity {
 		BigDecimal financeValue,
 		LocalDate dateFinanceOperation,
 		LocalTime timeFinanceOperation,
-		String plaseFinanceOperation) 
+		String placeFinanceOperation)
 	{
-		this.stateFinanceOperation = RowStates.ACCESSIBLE;
 		this.financeOperationType = financeOperationType;
 		this.currency = currency;
 		this.financeValue = financeValue;
 		this.dateFinanceOperation = dateFinanceOperation;
 		this.timeFinanceOperation = timeFinanceOperation;
-		this.plaseFinanceOperation = plaseFinanceOperation;
+		this.placeFinanceOperation = placeFinanceOperation;
 		
 	} 
 	
@@ -153,12 +152,12 @@ public class FinanceOperationEntity {
 		this.timeFinanceOperation = timeFinanceOperation;
 	}
 	
-	public String getPlaseFinanceOPeration() {
-		return plaseFinanceOperation;
+	public String getPlaceFinanceOperation() {
+		return placeFinanceOperation;
 	}
 	
-	public void setPlaseFinanceOPeration(String plaseFinanceOperation) {
-		this.plaseFinanceOperation = plaseFinanceOperation;
+	public void setPlaceFinanceOperation(String placeFinanceOperation) {
+		this.placeFinanceOperation = placeFinanceOperation;
 	}
 	
 	
